@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Algebra: A First Course · A Complete Introduction to Algebraic Thinking</title>
+    <meta name="description" content="A complete first course in algebra — from arithmetic foundations to rational and radical equations. Every concept defined, every rule justified. 11 chapters, 172 pages.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <style>
+        :root {
+            --bg: #04060d;
+            --bg2: #070c18;
+            --white: #ffffff;
+            --white-90: rgba(255,255,255,0.9);
+            --white-70: rgba(255,255,255,0.7);
+            --white-50: rgba(255,255,255,0.5);
+            --white-30: rgba(255,255,255,0.3);
+            --white-12: rgba(255,255,255,0.12);
+            --white-06: rgba(255,255,255,0.06);
+
+            /* Gradient accent colors */
+            --c1: #3b82f6;   /* electric blue */
+            --c2: #8b5cf6;   /* violet */
+            --c3: #06b6d4;   /* cyan */
+            --c4: #a855f7;   /* purple */
+
+            --grad-border: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+            --grad-border-alt: linear-gradient(135deg, #a855f7 0%, #3b82f6 60%, #06b6d4 100%);
+            --grad-text: linear-gradient(135deg, #e2e8f0 0%, #93c5fd 40%, #c4b5fd 80%, #67e8f9 100%);
+
+            --radius: 16px;
+            --radius-sm: 10px;
+            --font-display: 'DM Serif Display', Georgia, serif;
+            --font: 'DM Sans', system-ui, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+        body {
+            font-family: var(--font);
+            background-color: var(--bg);
+            color: var(--white);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            /* NO horizontal padding on body – handled per container */
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(ellipse 70% 50% at 20% 10%, rgba(59,130,246,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139,92,246,0.07) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 60% at 50% 80%, rgba(6,182,212,0.05) 0%, transparent 60%);
+            background-attachment: fixed;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        img { max-width: 100%; display: block; }
+
+        h1, h2, h3 { line-height: 1.2; }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.6rem, 8vw, 5rem);
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.5rem;
+            background: var(--grad-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.7rem, 4.5vw, 2.8rem);
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.75) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+        h3 {
+            font-family: var(--font);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--white-90);
+        }
+
+        .text-muted { color: var(--white-50); }
+        .text-small { font-size: 0.875rem; }
+        .text-center { text-align: center; }
+
+        .container {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+            width: 100%;
+        }
+        section { padding: 6.5rem 0; }
+
+        /* ══════════════════════════════════
+           GRADIENT BORDER CARDS
+           Uses a pseudo-element for the border so the gradient is vivid and visible.
+        ══════════════════════════════════ */
+        .surface-card {
+            position: relative;
+            border-radius: var(--radius);
+            padding: 2rem;
+            transition: box-shadow 0.3s, transform 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 0;
+            background: rgba(7,12,24,0.85);
+        }
+        /* The gradient border lives on ::before */
+        .surface-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius);
+            padding: 1.5px; /* border thickness */
+            background: var(--grad-border);
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+        .surface-card:hover::before {
+            opacity: 1;
+        }
+        .surface-card:hover {
+            box-shadow:
+                0 0 0 1px rgba(59,130,246,0.0),
+                0 20px 50px rgba(4,6,13,0.8),
+                0 0 40px rgba(59,130,246,0.07);
+            transform: translateY(-3px);
+        }
+        /* Alternate gradient for variety */
+        .surface-card.alt::before {
+            background: var(--grad-border-alt);
+        }
+
+        /* ══════════════════════════════════ BUTTONS ══════════════════════════════════ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.85rem 2rem;
+            background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2));
+            color: #fff;
+            border: 1px solid rgba(99,162,255,0.35);
+            border-radius: var(--radius-sm);
+            font-family: var(--font);
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.02em;
+            transition: all 0.25s;
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .btn:hover {
+            background: linear-gradient(135deg, rgba(59,130,246,0.35), rgba(139,92,246,0.35));
+            border-color: rgba(139,162,255,0.6);
+            box-shadow: 0 8px 24px rgba(59,130,246,0.2), 0 0 0 1px rgba(99,130,255,0.1);
+            transform: translateY(-2px);
+        }
+        .btn-block { width: 100%; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--white-12);
+        }
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: var(--white-30);
+        }
+
+        /* ══════════════════════════════════ HERO ══════════════════════════════════ */
+        .hero { padding: 5.5rem 0 3rem; text-align: center; }
+        .hero .eyebrow {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--c3);
+            border: 1px solid rgba(6,182,212,0.3);
+            border-radius: 100px;
+            padding: 0.3rem 1rem;
+            margin-bottom: 1.4rem;
+            background: rgba(6,182,212,0.06);
+        }
+        .hero .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            max-width: 560px;
+            margin: 1.25rem auto 2.25rem;
+            color: var(--white-70);
+            line-height: 1.75;
+        }
+        .hero-cta-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ══════════════════════════════════ PROTOTYPE BOX ══════════════════════════════════ */
+        .prototype-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            border: 1px dashed rgba(99,162,255,0.2);
+            border-radius: var(--radius);
+            padding: 1.6rem 1.75rem;
+            background: rgba(59,130,246,0.04);
+            margin-bottom: 2rem;
+        }
+        .prototype-box > div { min-width: 0; flex: 1 1 200px; }
+        .prototype-box h3 { margin-bottom: 0.25rem; color: #93c5fd; }
+        .prototype-box .btn { flex-shrink: 0; }
+
+        /* ══════════════════════════════════ BENTO GRID ══════════════════════════════════ */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-top: 2rem;
+        }
+        .bento-card .feature-icon { font-size: 1.9rem; margin-bottom: 0.75rem; }
+        .bento-card p { color: var(--white-50); font-size: 0.9rem; line-height: 1.65; }
+
+
+        /* ══════════════════════════════════ PRICING ══════════════════════════════════ */
+        .pricing-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            justify-content: center;
+            margin-top: 2.5rem;
+        }
+        .pricing-card {
+            flex: 1 1 240px;
+            max-width: 300px;
+            text-align: center;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .pricing-card.recommended::before {
+            background: linear-gradient(135deg, #a855f7 0%, #3b82f6 50%, #06b6d4 100%);
+            opacity: 0.9;
+        }
+        .recommended-badge {
+            background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(59,130,246,0.2));
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.8rem;
+            border: 1px solid rgba(139,92,246,0.4);
+            color: #c4b5fd;
+        }
+        .price {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 400;
+            margin: 0.5rem 0 0.2rem;
+            background: var(--grad-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ══════════════════════════════════ GUARANTEE ══════════════════════════════════ */
+        .guarantee-card {
+            position: relative;
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            text-align: center;
+            margin-top: 4rem;
+            background: rgba(7,12,24,0.7);
+            border: 1px solid rgba(6,182,212,0.15);
+            box-shadow: 0 0 60px rgba(6,182,212,0.04);
+        }
+
+        /* ══════════════════════════════════ REVIEWS ══════════════════════════════════ */
+        .reviews-list { display: flex; flex-direction: column; gap: 1.1rem; margin-top: 2rem; }
+        .review-item {
+            border-left: 2px solid;
+            border-image: linear-gradient(180deg, #3b82f6, #8b5cf6) 1;
+            padding: 0.9rem 1.4rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+        .review-author { font-weight: 600; margin-bottom: 0.2rem; font-size: 0.9rem; color: #93c5fd; }
+        .review-text { color: var(--white-50); font-size: 0.875rem; line-height: 1.65; }
+        .review-date { font-size: 0.72rem; color: var(--white-30); margin-top: 0.3rem; }
+
+        /* ══════════════════════════════════ AUTH ══════════════════════════════════ */
+        .auth-section {
+            margin-top: 3rem;
+            background: rgba(7,12,24,0.85);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 440px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+        }
+        .auth-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius);
+            padding: 1px;
+            background: var(--grad-border-alt);
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0.45;
+        }
+        .auth-section label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--white-50);
+            margin-bottom: 0.35rem;
+        }
+        .auth-section input,
+        .auth-section textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--white-12);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            margin-bottom: 1rem;
+            font-family: var(--font);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .auth-section textarea { resize: vertical; min-height: 90px; }
+        .auth-section input:focus,
+        .auth-section textarea:focus {
+            border-color: rgba(99,130,255,0.6);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+        }
+        .hidden { display: none !important; }
+        .auth-toggle {
+            text-align: center;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--white-50);
+        }
+        .auth-toggle a { color: #93c5fd; cursor: pointer; font-weight: 500; }
+        .user-greeting { display: flex; align-items: center; gap: 0.6rem; font-weight: 500; font-size: 0.9rem; }
+        .avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        /* ══════════════════════════════════ TOAST ══════════════════════════════════ */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            left: 1.5rem;
+            max-width: 360px;
+            margin: 0 auto;
+            background: #0a0f1e;
+            border: 1px solid var(--white-12);
+            color: #fff;
+            padding: 0.85rem 1.4rem;
+            border-radius: 10px;
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            pointer-events: none;
+            font-size: 0.9rem;
+            right: 1.5rem;
+            left: auto;
+        }
+        @media (max-width: 480px) {
+            .toast { left: 1rem; right: 1rem; max-width: 100%; }
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { border-color: rgba(239,68,68,0.45); background: #150a0a; }
+        .toast.success { border-color: rgba(34,197,94,0.4); background: #071210; }
+
+        /* ══════════════════════════════════ VAULT ══════════════════════════════════ */
+        #vault-page { display: none; padding: 5rem 0 3rem; text-align: center; }
+        #vault-page.active { display: block; }
+        .nav-back {
+            margin-bottom: 2rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: var(--white-50);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: color 0.2s;
+        }
+        .nav-back:hover { color: #fff; }
+        .vault-card { max-width: 440px; margin: 0 auto; text-align: left; }
+        .vault-card input {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--white-12);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            font-family: var(--font);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .vault-card input:focus {
+            border-color: rgba(99,130,255,0.6);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+        }
+
+        /* ══════════════════════════════════ CHAPTER LIST ══════════════════════════════════ */
+        .chapter-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 0.85rem;
+            margin-top: 2rem;
+        }
+        .chapter-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--white-06);
+            border-radius: var(--radius-sm);
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .chapter-item:hover {
+            border-color: rgba(99,162,255,0.2);
+            background: rgba(59,130,246,0.04);
+        }
+        .chapter-num {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: var(--white-30);
+            line-height: 1;
+            min-width: 2rem;
+            padding-top: 0.1rem;
+        }
+        .chapter-info h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--white-90);
+            margin-bottom: 0.2rem;
+        }
+        .chapter-info p {
+            font-size: 0.8rem;
+            color: var(--white-50);
+            line-height: 1.55;
+        }
+
+        /* ══════════════════════════════════ EXERCISE TIERS ══════════════════════════════════ */
+        .tier-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+        .tier-card {
+            flex: 1 1 200px;
+            max-width: 260px;
+            text-align: center;
+            padding: 1.6rem 1.4rem;
+        }
+        .tier-label {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            margin-bottom: 0.75rem;
+        }
+        .tier-label.fluency   { background: rgba(6,182,212,0.12);  color: #67e8f9; border: 1px solid rgba(6,182,212,0.25); }
+        .tier-label.app       { background: rgba(139,92,246,0.12); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.25); }
+        .tier-label.extension { background: rgba(245,158,11,0.10); color: #fcd34d; border: 1px solid rgba(245,158,11,0.2); }
+        .tier-card h4 { font-size: 1rem; font-weight: 600; color: var(--white-90); margin-bottom: 0.4rem; }
+        .tier-card p  { font-size: 0.85rem; color: var(--white-50); line-height: 1.6; }
+
+        @media (max-width: 600px) {
+            .chapter-list { grid-template-columns: 1fr; }
+            .tier-row { flex-direction: column; align-items: stretch; }
+            .tier-card { max-width: 100%; }
+        }
+
+        /* ══════════════════════════════════ FOOTER ══════════════════════════════════ */
+        footer {
+            border-top: 1px solid var(--white-06);
+            padding: 2.5rem 0;
+            text-align: center;
+            color: var(--white-30);
+            font-size: 0.82rem;
+        }
+
+        /* ══════════════════════════════════ ANIMATIONS ══════════════════════════════════ */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeInUp 0.65s ease both; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-top-color: rgba(99,162,255,0.9);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ══════════════════════════════════ MOBILE ══════════════════════════════════ */
+        @media (max-width: 600px) {
+            section { padding: 4rem 0; }
+
+            .hero { padding: 3.5rem 0 2rem; }
+            .hero .subtitle { font-size: 1rem; }
+            .hero-cta-group { flex-direction: column; align-items: center; }
+            .hero-cta-group .btn { width: 100%; max-width: 320px; }
+
+            .prototype-box {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1.25rem;
+            }
+            .prototype-box .btn {
+                width: 100%;
+                font-size: 0.8rem;
+                padding: 0.75rem 1rem;
+                white-space: normal;
+                text-align: center;
+                word-break: break-all;
+            }
+
+            .bento-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .surface-card { padding: 1.4rem; }
+
+            .pricing-grid { flex-direction: column; align-items: stretch; }
+            .pricing-card { max-width: 100%; flex: 1 1 auto; }
+
+            .auth-section { padding: 1.5rem; }
+            .vault-card input { font-size: 16px; /* prevent iOS zoom */ }
+            .auth-section input { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="landing-page">
+
+        <section class="hero container fade-in">
+            <div class="eyebrow">Complete First Course · Chapters 1–11</div>
+            <h1>Algebra: A First Course</h1>
+            <p class="subtitle">A complete introduction to algebraic thinking — from arithmetic foundations to rational and radical equations. Every concept is defined before it is used. Every rule is justified before it is applied.</p>
+            <div class="hero-cta-group">
+                <a href="#pricing" class="btn">Get Your Copy →</a>
+                <a href="#" class="btn btn-outline" id="prototype-download-btn">⇩ Free Chapters 1–2 Preview</a>
+            </div>
+        </section>
+
+        <section class="container fade-in delay-2" style="padding-top:0;">
+            <div class="prototype-box">
+                <div>
+                    <h3>⬇ FREE PREVIEW: CHAPTERS 1–2 — PRE-ALGEBRA REVIEW & THE PROPERTIES OF EQUALITY</h3>
+                    <p class="text-muted">No sign‑up, no payment — read the opening chapters and see the method for yourself.</p>
+                </div>
+                <a href="#" class="btn btn-outline" id="prototype-download-btn-2">⇩ DOWNLOAD_CH1-2_PREVIEW.PDF</a>
+            </div>
+        </section>
+
+        <section class="container fade-in delay-3">
+            <h2>Why This Book Works</h2>
+            <div class="bento-grid">
+                <div class="surface-card bento-card">
+                    <div class="feature-icon">⚖️</div>
+                    <h3>Every Rule Justified</h3>
+                    <p>Nothing is handed to you as a fact to memorise. Every property — from the Reflexive Property of Equality to the Quadratic Formula — is derived from first principles.</p>
+                </div>
+                <div class="surface-card bento-card alt">
+                    <div class="feature-icon">📐</div>
+                    <h3>Gradual, Deliberate Progression</h3>
+                    <p>Each chapter builds on the one before it. Arithmetic → Equality → Signed Numbers → Linear Equations → all the way to Rational and Radical Equations.</p>
+                </div>
+                <div class="surface-card bento-card">
+                    <div class="feature-icon">✏️</div>
+                    <h3>Three-Tier Problem Sets</h3>
+                    <p>Every section ends with Fluency, Application, and Extension problems — so you drill procedures, then apply them, then challenge yourself beyond routine calculation.</p>
+                </div>
+                <div class="surface-card bento-card alt">
+                    <div class="feature-icon">📋</div>
+                    <h3>Chapter Summaries & Tests</h3>
+                    <p>Each chapter closes with a concise summary of every key rule and a full chapter test — so you always know exactly where you stand before moving on.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="container fade-in delay-3">
+            <h2>What's Inside</h2>
+            <div class="chapter-list">
+                <div class="chapter-item">
+                    <div class="chapter-num">1</div>
+                    <div class="chapter-info">
+                        <h4>Pre-Algebra Review</h4>
+                        <p>Numbers and their properties, order of operations, fractions, variables and expressions — the vocabulary the rest of the book assumes.</p>
+                    </div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-num">2</div>
+                    <div class="chapter-info">
+                        <h4>The Properties of Equality</h4>
+                        <p>Reflexive, symmetric, transitive, substitution, addition, multiplication, commutative, associative, and distributive properties — every step in algebra, named and justified.</p>
+                    </div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-num">3</div>
+                    <div class="chapter-info">
+                        <h4>Signed Numbers</h4>
+                        <p>The number line, absolute value, and all four operations with negative numbers — the foundation for everything that follows.</p>
+                    </div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-num">4</div>
+                    <div class="chapter-info">
+                        <h4>Linear Equations</h4>
+                        <p>One-step, two-step, and multi-step equations; identities and contradictions; word problems.</p>
+                    </div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-num">5</div>
+                    <div class="chapter-info">
+                        <h4>Sets and Intervals</h4>
+                        <p>Set notation, subsets, union, intersection, complement, and interval notation — the precise language for describing solution sets.</p>
+                    </div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-num">6</div>
+                    <div class="chapter-info">
+                        <h4>Inequalities</h4>
+                        <p>Properties of inequalities, linear inequalities, compound inequalities, and absolute value equations and inequalities.</p>
+                    </div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-num">7</div>
+                    <div class="chapter-info">
+                        <h4>Polynomials</h4>
+                        <p>Adding, subtracting, multiplying, long division, synthetic division, and two full sections on factoring — the key to Chapters 10 and 11.</p>
+                    </div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-num">8</div>
+                    <div class="chapter-info">
+                        <h4>Graphing and Systems of Equations</h4>
+                        <p>The coordinate plane, slope, equations of lines, and solving systems by graphing, substitution, and elimination.</p>
+                    </div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-num">9</div>
+                    <div class="chapter-info">
+                        <h4>Functions and Variation</h4>
+                        <p>Relations and functions, function notation, domain, composition, inverse functions, and direct, inverse, and joint variation.</p>
+                    </div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-num">10</div>
+                    <div class="chapter-info">
+                        <h4>Quadratic Equations</h4>
+                        <p>Simplifying radicals, factoring, square roots, completing the square, the quadratic formula, and the discriminant — four methods, one clear strategy.</p>
+                    </div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-num">11</div>
+                    <div class="chapter-info">
+                        <h4>Rational and Radical Equations</h4>
+                        <p>Rational expressions and equations, radical equations, and equations quadratic in form — the culmination of everything in the book.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container fade-in delay-3">
+            <h2>How Every Section Is Structured</h2>
+            <p class="text-muted text-center" style="max-width:560px;margin:0 auto;">Every section ends with 20 problems arranged in three tiers — so you always know exactly what you're being asked to do.</p>
+            <div class="tier-row">
+                <div class="surface-card tier-card">
+                    <div class="tier-label fluency">Fluency · Problems 1–10</div>
+                    <h4>Definitions & Procedures</h4>
+                    <p>Check that you've understood the section. Manageable if you've read carefully — designed to build confidence before you push further.</p>
+                </div>
+                <div class="surface-card tier-card alt">
+                    <div class="tier-label app">Application · Problems 11–19</div>
+                    <h4>Combining Ideas</h4>
+                    <p>Multi-step problems and less familiar contexts. Harder than Fluency, and supposed to be. This is where understanding deepens.</p>
+                </div>
+                <div class="surface-card tier-card">
+                    <div class="tier-label extension">Extension · Problem 20</div>
+                    <h4>Genuine Challenge</h4>
+                    <p>One problem of real difficulty per section — entirely optional, but attempting it, even without success, is always worthwhile.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="container fade-in delay-3" id="pricing">
+            <h2>Get the Book</h2>
+            <div class="pricing-grid" id="pricing-grid"></div>
+            <p class="text-muted text-center" style="margin-top:2.5rem;font-size:0.875rem;">Instant delivery of your watermarked PDF after purchase · 172 pages · Hyperlinked and searchable</p>
+        </section>
+
+        <div class="container fade-in delay-3" style="padding: 2rem 1.25rem;">
+            <div class="guarantee-card">
+                <span style="font-size:2rem;display:block;margin-bottom:0.6rem;">🛡️</span>
+                <h3 style="margin-bottom:0.4rem;color:#fff;font-size:1.1rem;">30‑Day Money‑Back Guarantee</h3>
+                <p class="text-muted" style="font-size:0.9rem;">Full refund, no questions asked. We stand behind the method completely.</p>
+            </div>
+        </div>
+
+        <section class="container fade-in delay-3" id="reviews-section">
+            <h2>What Students Are Saying</h2>
+            <div class="reviews-list" id="reviews-container">
+                <p class="text-muted text-center">Loading reviews…</p>
+            </div>
+            <div class="auth-section" id="auth-section">
+                <div id="auth-forms">
+                    <div id="login-form">
+                        <h3 style="margin-bottom:1.2rem;">Log In to Leave a Review</h3>
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password">
+                        <button class="btn btn-block" id="login-btn">Log In</button>
+                        <p class="auth-toggle">Don't have an account? <a id="show-signup">Sign up here</a></p>
+                    </div>
+                    <div id="signup-form" class="hidden">
+                        <h3 style="margin-bottom:1.2rem;">Create an Account</h3>
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" placeholder="Min. 6 characters" minlength="6" autocomplete="new-password">
+                        <button class="btn btn-block" id="signup-btn">Sign Up</button>
+                        <p class="auth-toggle">Already have an account? <a id="show-login">Log in</a></p>
+                    </div>
+                </div>
+                <div id="review-form-container" class="hidden">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;gap:0.5rem;">
+                        <div class="user-greeting">
+                            <div class="avatar" id="user-avatar">U</div>
+                            <span id="user-email-display"></span>
+                        </div>
+                        <button class="btn btn-outline" id="logout-btn" style="padding:0.5rem 1rem;font-size:0.8rem;">Log Out</button>
+                    </div>
+                    <label for="review-text">Your Review</label>
+                    <textarea id="review-text" placeholder="Share your experience with Algebra: A First Course…" maxlength="500"></textarea>
+                    <button class="btn btn-block" id="submit-review">Submit Review</button>
+                    <p class="text-small text-muted" style="margin-top:0.4rem;" id="review-char-count">0 / 500</p>
+                </div>
+                <div id="auth-loading" class="hidden text-center" style="padding:2rem 1.5rem;">
+                    <div class="spinner"></div>
+                    <p class="text-muted text-small" style="margin-top:0.6rem;">Please wait…</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- VAULT PAGE -->
+    <div id="vault-page">
+        <div class="container">
+            <div class="nav-back" onclick="window.location.hash='';">← Back to main page</div>
+            <div class="surface-card vault-card fade-in">
+                <h2 style="text-align:left;margin-bottom:0.5rem;">Your Algebra Vault</h2>
+                <p class="text-muted" style="margin-bottom:1.75rem;font-size:0.9rem;">Enter the email and Order ID from your purchase receipt.</p>
+                <!-- Intentionally NOT a <form> to avoid accidental page reload edge cases -->
+                <div id="vault-form" style="display:flex;flex-direction:column;gap:0.75rem;">
+                    <label for="vault-email" style="font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--white-50);">Email</label>
+                    <input type="email" id="vault-email" placeholder="Email used at purchase" autocomplete="email">
+                    <label for="vault-sale-id" style="font-size:0.8rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--white-50);">Order ID</label>
+                    <input type="text" id="vault-sale-id" placeholder="Order ID (from receipt)" autocomplete="off">
+                    <button class="btn btn-block" id="vault-submit-btn">Generate Secure Download Link</button>
+                </div>
+                <div id="vault-result" style="margin-top:1.5rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+    <footer class="container">
+        © Algebra: A First Course · Secure payments by Gumroad · Instant digital delivery · 30‑day refund
+    </footer>
+
+    <script>
+    (function () {
+        // ═══════════════════════════════════════
+        // CONFIG – REPLACE WITH YOUR VALUES
+        // ═══════════════════════════════════════
+        const SUPABASE_URL     = 'https://your-project.supabase.co';
+        const SUPABASE_ANON_KEY = 'your-anon-key-here';
+
+        const PROTOTYPE_URL = 'https://your-project.supabase.co/storage/v1/object/public/public-files/prototype_ch1-2.pdf';
+
+        // ═══════════════════════════════════════
+        // UTILITIES
+        // ═══════════════════════════════════════
+        const $  = s => document.querySelector(s);
+        const $$ = s => document.querySelectorAll(s);
+
+        function escapeHTML(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function showToast(msg, type) {
+            const toast = $('#toast');
+            if (!toast) return;
+            toast.textContent = msg;
+            toast.className = 'toast ' + (type || '') + ' show';
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        // ═══════════════════════════════════════
+        // INIT SUPABASE (graceful – never crashes)
+        // ═══════════════════════════════════════
+        let supabase = null;
+        try {
+            if (
+                window.supabase &&
+                SUPABASE_URL.startsWith('https://') &&
+                !SUPABASE_URL.includes('your-project') &&
+                SUPABASE_ANON_KEY.length > 20
+            ) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) {
+            console.warn('Supabase init failed:', e);
+        }
+
+        // ═══════════════════════════════════════
+        // PROTOTYPE DOWNLOAD BUTTONS (null-safe)
+        // ═══════════════════════════════════════
+        $$('#prototype-download-btn, #prototype-download-btn-2').forEach(btn => {
+            if (btn) btn.href = PROTOTYPE_URL;
+        });
+
+        // ═══════════════════════════════════════
+        // PRICING CARDS
+        // ═══════════════════════════════════════
+        const GUMROAD_LINKS = {
+            basic: 'https://mathlabofficial.gumroad.com/l/algebra-basic',
+            full:  'https://mathlabofficial.gumroad.com/l/algebra-full'
+        };
+
+        const pricingData = [
+            {
+                tier: 'basic',
+                name: 'Essential',
+                desc: 'Chapters 1–6',
+                subtitle: 'Pre-Algebra through Inequalities',
+                price: '5.99',
+                recommended: false,
+                features: ['Chapters 1–6 (6 chapters)', 'Pre-Algebra, Equality, Signed Numbers', 'Linear Equations, Sets, Inequalities', 'Chapter summaries & tests', 'Watermarked PDF']
+            },
+            {
+                tier: 'full',
+                name: 'Full',
+                desc: 'All 11 Chapters',
+                subtitle: 'Complete first course',
+                price: '11.99',
+                recommended: true,
+                features: ['All chapters 1–11', 'Polynomials, Graphing, Functions', 'Quadratic & Rational Equations', 'Appendix: Index of Key Terms', 'Chapter summaries & tests', 'Watermarked PDF']
+            }
+        ];
+
+        const pricingGrid = $('#pricing-grid');
+        if (pricingGrid) {
+            pricingGrid.innerHTML = pricingData.map(p => `
+                <div class="surface-card pricing-card ${p.recommended ? 'recommended alt' : ''}">
+                    ${p.recommended ? '<div class="recommended-badge">✦ RECOMMENDED</div>' : ''}
+                    <h3>${escapeHTML(p.name)}</h3>
+                    <p class="text-muted" style="margin-bottom:0.25rem;font-size:0.875rem;font-weight:600;">${escapeHTML(p.desc)}</p>
+                    <p class="text-muted" style="margin-bottom:0.5rem;font-size:0.8rem;">${escapeHTML(p.subtitle)}</p>
+                    <div class="price">$${escapeHTML(p.price)}</div>
+                    <ul style="list-style:none;margin:0.75rem 0 0;padding:0;text-align:left;display:flex;flex-direction:column;gap:0.35rem;">
+                        ${p.features.map(f => `<li style="font-size:0.8rem;color:rgba(255,255,255,0.55);display:flex;align-items:flex-start;gap:0.5rem;"><span style="color:#67e8f9;flex-shrink:0;margin-top:0.05rem;">✓</span>${escapeHTML(f)}</li>`).join('')}
+                    </ul>
+                    <a href="${escapeHTML(GUMROAD_LINKS[p.tier])}" class="btn btn-block" style="margin-top:1.25rem;" target="_blank" rel="noopener">Buy Now →</a>
+                </div>
+            `).join('');
+        }
+
+        // ═══════════════════════════════════════
+        // VAULT ROUTING
+        // ═══════════════════════════════════════
+        function handleHash() {
+            const landing = $('#landing-page');
+            const vault   = $('#vault-page');
+            if (!landing || !vault) return;
+            if (window.location.hash === '#vault') {
+                landing.style.display = 'none';
+                vault.classList.add('active');
+            } else {
+                landing.style.display = 'block';
+                vault.classList.remove('active');
+            }
+        }
+        window.addEventListener('hashchange', handleHash);
+        handleHash();
+
+        // Vault submit (button, not form submit, to avoid page reload)
+        const vaultSubmitBtn = $('#vault-submit-btn');
+        if (vaultSubmitBtn) {
+            vaultSubmitBtn.addEventListener('click', async function () {
+                const email   = $('#vault-email')?.value.trim() || '';
+                const saleId  = $('#vault-sale-id')?.value.trim() || '';
+                const resultDiv = $('#vault-result');
+                if (!resultDiv) return;
+
+                if (!email || !saleId) {
+                    resultDiv.innerHTML = '<p style="color:#f87171;">Please fill in both fields.</p>';
+                    return;
+                }
+                if (!supabase) {
+                    resultDiv.innerHTML = '<p style="color:#f87171;">Supabase is not configured. Contact support.</p>';
+                    return;
+                }
+
+                resultDiv.innerHTML = '<div style="display:flex;align-items:center;gap:0.6rem;color:var(--white-50);font-size:0.9rem;"><div class="spinner"></div> Verifying your order…</div>';
+                vaultSubmitBtn.disabled = true;
+
+                try {
+                    const { data, error } = await supabase
+                        .from('orders')
+                        .select('watermarked_pdf_path')
+                        .eq('email', email)
+                        .eq('gumroad_sale_id', saleId)
+                        .maybeSingle();
+
+                    if (error || !data) {
+                        resultDiv.innerHTML = '<p style="color:#f87171;">Order not found. Check your email and Order ID.</p>';
+                        return;
+                    }
+                    if (!data.watermarked_pdf_path) {
+                        resultDiv.innerHTML = '<p style="color:#fbbf24;">Your download is being prepared. Check your email shortly.</p>';
+                        return;
+                    }
+
+                    const { data: signed } = await supabase.storage
+                        .from('private-files')
+                        .createSignedUrl(data.watermarked_pdf_path, 60);
+
+                    if (signed?.signedUrl) {
+                        resultDiv.innerHTML = `
+                            <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:1.25rem;">
+                                <p style="margin-bottom:0.85rem;font-size:0.9rem;">✅ Your download is ready — link expires in 60 seconds:</p>
+                                <a href="${escapeHTML(signed.signedUrl)}" class="btn" target="_blank" rel="noopener">⬇ Download PDF</a>
+                            </div>`;
+                    } else {
+                        resultDiv.innerHTML = '<p style="color:#f87171;">Could not generate download link. Please try again.</p>';
+                    }
+                } catch (err) {
+                    resultDiv.innerHTML = '<p style="color:#f87171;">An unexpected error occurred. Please try again.</p>';
+                    console.error('Vault error:', err);
+                } finally {
+                    vaultSubmitBtn.disabled = false;
+                }
+            });
+        }
+
+        // ═══════════════════════════════════════
+        // AUTH & REVIEWS
+        // ═══════════════════════════════════════
+        let currentUser = null;
+
+        const loginForm            = $('#login-form');
+        const signupForm           = $('#signup-form');
+        const reviewFormContainer  = $('#review-form-container');
+        const authLoading          = $('#auth-loading');
+        const reviewsContainer     = $('#reviews-container');
+
+        function showLoggedInUI(user) {
+            loginForm?.classList.add('hidden');
+            signupForm?.classList.add('hidden');
+            reviewFormContainer?.classList.remove('hidden');
+            authLoading?.classList.add('hidden');
+            const avatar = $('#user-avatar');
+            const emailDisplay = $('#user-email-display');
+            if (avatar) avatar.textContent = (user.email || 'U').charAt(0).toUpperCase();
+            if (emailDisplay) emailDisplay.textContent = user.email || '';
+        }
+
+        function showLoggedOutUI() {
+            currentUser = null;
+            loginForm?.classList.remove('hidden');
+            signupForm?.classList.add('hidden');
+            reviewFormContainer?.classList.add('hidden');
+            authLoading?.classList.add('hidden');
+        }
+
+        async function loadReviews() {
+            if (!supabase || !reviewsContainer) return;
+            try {
+                const { data, error } = await supabase
+                    .from('reviews')
+                    .select('email, review_text, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    reviewsContainer.innerHTML = '<p class="text-muted text-center">No reviews yet. Be the first.</p>';
+                    return;
+                }
+                reviewsContainer.innerHTML = data.map(r => `
+                    <div class="review-item">
+                        <div class="review-author">${escapeHTML(r.email || 'Anonymous')}</div>
+                        <p class="review-text">${escapeHTML(r.review_text)}</p>
+                        <div class="review-date">${new Date(r.created_at).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                if (reviewsContainer) reviewsContainer.innerHTML = '<p class="text-muted text-center">Could not load reviews.</p>';
+                console.error('loadReviews error:', err);
+            }
+        }
+
+        async function checkSession() {
+            if (!supabase) return;
+            try {
+                const { data } = await supabase.auth.getSession();
+                if (data?.session?.user) {
+                    currentUser = data.session.user;
+                    showLoggedInUI(currentUser);
+                } else {
+                    showLoggedOutUI();
+                }
+            } catch (e) {
+                showLoggedOutUI();
+            }
+            loadReviews();
+        }
+
+        // Login
+        $('#login-btn')?.addEventListener('click', async () => {
+            if (!supabase) return;
+            const email    = $('#login-email')?.value.trim() || '';
+            const password = $('#login-password')?.value || '';
+            if (!email || !password) { showToast('Please fill in all fields.', 'error'); return; }
+
+            authLoading?.classList.remove('hidden');
+            loginForm?.classList.add('hidden');
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            authLoading?.classList.add('hidden');
+
+            if (error) {
+                showToast(error.message, 'error');
+                loginForm?.classList.remove('hidden');
+                return;
+            }
+            currentUser = data.user;
+            showLoggedInUI(currentUser);
+            loadReviews();
+            showToast('Logged in successfully.', 'success');
+        });
+
+        // Sign up
+        $('#signup-btn')?.addEventListener('click', async () => {
+            if (!supabase) return;
+            const email    = $('#signup-email')?.value.trim() || '';
+            const password = $('#signup-password')?.value || '';
+            if (!email || !password) { showToast('Please fill in all fields.', 'error'); return; }
+            if (password.length < 6) { showToast('Password must be at least 6 characters.', 'error'); return; }
+
+            authLoading?.classList.remove('hidden');
+            signupForm?.classList.add('hidden');
+
+            const { data, error } = await supabase.auth.signUp({ email, password });
+            authLoading?.classList.add('hidden');
+
+            if (error) {
+                showToast(error.message, 'error');
+                signupForm?.classList.remove('hidden');
+                return;
+            }
+            if (data.user && data.session) {
+                currentUser = data.user;
+                showLoggedInUI(currentUser);
+                loadReviews();
+                showToast('Account created!', 'success');
+            } else {
+                showToast('Check your email to confirm your account.', 'success');
+                signupForm?.classList.remove('hidden');
+            }
+        });
+
+        // Toggle auth views
+        $('#show-signup')?.addEventListener('click', () => {
+            loginForm?.classList.add('hidden');
+            signupForm?.classList.remove('hidden');
+        });
+        $('#show-login')?.addEventListener('click', () => {
+            signupForm?.classList.add('hidden');
+            loginForm?.classList.remove('hidden');
+        });
+
+        // Logout
+        $('#logout-btn')?.addEventListener('click', async () => {
+            if (!supabase) return;
+            await supabase.auth.signOut();
+            currentUser = null;
+            showLoggedOutUI();
+            loadReviews();
+            showToast('Logged out.', 'success');
+        });
+
+        // Submit review
+        $('#submit-review')?.addEventListener('click', async () => {
+            if (!supabase || !currentUser) { showToast('Please log in first.', 'error'); return; }
+            const text = $('#review-text')?.value.trim() || '';
+            if (!text) { showToast('Write a review before submitting.', 'error'); return; }
+            if (text.length > 500) { showToast('Review is too long (max 500 characters).', 'error'); return; }
+
+            const btn = $('#submit-review');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div> Submitting…';
+
+            const { error } = await supabase.from('reviews').insert({
+                user_id:     currentUser.id,
+                email:       currentUser.email,
+                review_text: text
+            });
+
+            btn.disabled = false;
+            btn.textContent = 'Submit Review';
+
+            if (error) { showToast('Error: ' + error.message, 'error'); return; }
+
+            const reviewTextEl = $('#review-text');
+            const charCountEl  = $('#review-char-count');
+            if (reviewTextEl) reviewTextEl.value = '';
+            if (charCountEl)  charCountEl.textContent = '0 / 500';
+            loadReviews();
+            showToast('Review published!', 'success');
+        });
+
+        // Review char counter
+        $('#review-text')?.addEventListener('input', function () {
+            const el = $('#review-char-count');
+            if (el) el.textContent = this.value.length + ' / 500';
+        });
+
+        // ── Bootstrap auth & reviews ──
+        if (supabase) {
+            checkSession();
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN' && session?.user) {
+                    currentUser = session.user;
+                    showLoggedInUI(currentUser);
+                    loadReviews();
+                } else if (event === 'SIGNED_OUT') {
+                    currentUser = null;
+                    showLoggedOutUI();
+                    loadReviews();
+                }
+            });
+        } else {
+            // Supabase not configured — show graceful fallback
+            if (reviewsContainer) {
+                reviewsContainer.innerHTML = '<p class="text-muted text-center">Configure Supabase to enable reviews.</p>';
+            }
+        }
+
+    })();
+    </script>
+</body>
+</html>
