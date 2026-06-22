@@ -599,17 +599,23 @@
             <p class="subtitle">A complete introduction to algebraic thinking — from arithmetic foundations to rational and radical equations. Every concept is defined before it is used. Every rule is justified before it is applied.</p>
             <div class="hero-cta-group">
                 <a href="#pricing" class="btn">Get Your Copy →</a>
-                <a href="#" class="btn btn-outline" id="prototype-download-btn">⇩ Free Chapters 1–2 Preview</a>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+                    <input type="email" id="hero-email" placeholder="Enter your email" style="padding:0.85rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--white-12);background:rgba(255,255,255,0.04);color:#fff;min-width:240px;">
+                    <button class="btn btn-outline" id="hero-prototype-btn">Get Free Preview</button>
+                </div>
             </div>
         </section>
 
         <section class="container fade-in delay-2" style="padding-top:0;">
             <div class="prototype-box">
                 <div>
-                    <h3>⬇ FREE PREVIEW: CHAPTERS 1–2 — PRE-ALGEBRA REVIEW & THE PROPERTIES OF EQUALITY</h3>
-                    <p class="text-muted">No sign‑up, no payment — read the opening chapters and see the method for yourself.</p>
+                    <h3>⬇ FREE PREVIEW: CHAPTERS 1–2</h3>
+                    <p class="text-muted">Enter your email and we'll send the preview straight to your inbox.</p>
                 </div>
-                <a href="#" class="btn btn-outline" id="prototype-download-btn-2">⇩ DOWNLOAD_CH1-2_PREVIEW.PDF</a>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;width:100%;max-width:400px;">
+                    <input type="email" id="box-email" placeholder="Enter your email" style="flex:1;padding:0.85rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--white-12);background:rgba(255,255,255,0.04);color:#fff;min-width:200px;">
+                    <button class="btn" id="box-prototype-btn">Send Me the PDF</button>
+                </div>
             </div>
         </section>
 
@@ -880,10 +886,47 @@
         }
 
         // ═══════════════════════════════════════
-        // PROTOTYPE DOWNLOAD BUTTONS (null-safe)
+        // PROTOTYPE EMAIL CAPTURE
         // ═══════════════════════════════════════
-        $$('#prototype-download-btn, #prototype-download-btn-2').forEach(btn => {
-            if (btn) btn.href = PROTOTYPE_URL;
+        async function sendPrototype(email, btn) {
+            if (!email || !email.includes('@')) {
+                showToast('Please enter a valid email address.', 'error');
+                return;
+            }
+
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            try {
+                const response = await fetch('/api/send-prototype', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                if (response.ok) {
+                    showToast('Check your inbox! The PDF is on its way.', 'success');
+                    btn.textContent = 'Sent! Check Inbox';
+                } else {
+                    const data = await response.json();
+                    showToast(data.error || 'Failed to send email. Try again.', 'error');
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            } catch (err) {
+                showToast('Something went wrong. Please try again.', 'error');
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        $('#hero-prototype-btn')?.addEventListener('click', function() {
+            sendPrototype($('#hero-email')?.value.trim(), this);
+        });
+
+        $('#box-prototype-btn')?.addEventListener('click', function() {
+            sendPrototype($('#box-email')?.value.trim(), this);
         });
 
         // ═══════════════════════════════════════
